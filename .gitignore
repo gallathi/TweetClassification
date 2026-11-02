@@ -1,0 +1,8 @@
+# Jupyter / Python
+.ipynb_checkpoints/
+__pycache__/
+.venv/
+
+# Sorties générées
+submissions/
+xlmr-exist2024/
