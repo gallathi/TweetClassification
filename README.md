@@ -6,7 +6,7 @@ Tout le travail est dans `Modelling.ipynb` : modèles TF-IDF, étiquettes soft, 
 
 ## Données
 
-Le dossier `data/` contient le train et le dev d'EXIST 2024 (tweets), ainsi que les traductions du train (`EXIST2024_training_translated.json`), mises en cache pour ne pas avoir à les recalculer.
+Le dossier `data/` contient le train et le dev d'EXIST 2024 (tweets). Au premier lancement, le notebook traduit le train (anglais vers espagnol et espagnol vers anglais) et crée `EXIST2024_training_2.json`, qui contient les tweets originaux et leurs traductions. Ce fichier est ensuite rechargé directement.
 
 ## Lancer le notebook
 
