@@ -52,7 +52,7 @@ Sexist content on social networks harms the people it targets and limits their f
 
 \subsection{The EXIST challenge and learning with disagreement}
 
-The EXIST 2024 overview~\cite{plaza2024exist} describes the six tasks of the campaign (identification, source intention and categorisation, for tweets and memes), the dataset and the systems of 57 teams. It defines two evaluation settings: a \emph{hard} setting, where the gold label is obtained by majority vote, and a \emph{soft} setting, where the gold label is the distribution of the annotators' answers. Nearly all participants used pre-trained transformers (BERT, RoBERTa, XLM-RoBERTa, DeBERTa); some added large language models (LLMs) used in zero- or few-shot mode. EXIST 2025~\cite{plaza2025exist} reuses exactly the same tweets, so its results are directly comparable. Davani et al.~\cite{davani2022disagreements} show that modelling individual annotators, instead of the majority vote, can be at least as accurate on subjective tasks.
+The EXIST 2024 overview~\cite{plaza2024exist} describes the six tasks of the campaign (identification, source intention and categorisation, for tweets and memes), the dataset and the systems of 57 teams. It defines two evaluation settings: a \emph{hard} setting, where the gold label is obtained by majority vote, and a \emph{soft} setting, where the gold label is the distribution of the annotators' answers. Nearly all participants used pre-trained transformers (BERT, RoBERTa, XLM-RoBERTa, DeBERTa); some added large language models (LLMs) used in zero- or few-shot mode. EXIST 2025~\cite{plaza2025exist} reuses exactly the same tweets, so its results are directly comparable.
 
 Table~\ref{tab:top} summarises the best systems. All of them rely on \emph{large} models or on generative LLMs.
 
@@ -78,7 +78,7 @@ Rank & Team & F1 & Main ingredients \\
 
 \paragraph{Augmentation and architectures.} AEDA~\cite{karimi2021aeda}, which only inserts random punctuation, outperforms EDA~\cite{wei2019eda}, which changes words. A convolutional head on top of BERT (MultiCNN) slightly improves sexism detection~\cite{kalra2021sexism}, and several teams predict more than two classes~\cite{chen2025beyond,fang2024nycu,nowakowski2025grootwatch}. For translation, we used MarianMT~\cite{marianmt} and NLLB-200~\cite{nllb2022}.
 
-\paragraph{Libraries.} Our pipelines are built with scikit-learn~\cite{pedregosa2011sklearn} for the TF-IDF models, and with PyTorch~\cite{paszke2019pytorch} and Hugging Face Transformers~\cite{wolf2020transformers} for the transformers.
+\paragraph{Libraries.} Our pipelines are built with scikit-learn for the TF-IDF models, and with PyTorch and Hugging Face Transformers~\cite{wolf2020transformers} for the transformers.
 
 \subsection{Limits of the existing approaches for our setting}
 
