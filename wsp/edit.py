@@ -24,7 +24,7 @@ Statistiques calculées sur « calib » = 90 % du train EXIST 2024 (égalités 3
 
 Le modèle original n'est jamais écrasé ; le modèle édité va dans ./edited_model/.
 
-Usage : python edit.py [--out edited_model] [--layer 13] [--n-neurons 16] [--t 4] [--a 1]
+Usage (depuis la racine) : python wsp/edit.py [--out edited_model] [--layer 13] [--n-neurons 16] [--t 4] [--a 1]
 """
 import argparse
 import json
@@ -36,7 +36,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "wsp"))
 from common import (MODEL_ID, QUESTION, answer_ids, build_prompt, count_params,  # noqa: E402
                     fmt, load_model, load_splits, metrics, run, text_model)

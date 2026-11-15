@@ -10,3 +10,13 @@ xlmr-exist2024/
 # Weight-space programming
 edited_model/
 wsp/cache/
+
+# Fichiers intermédiaires LaTeX
+rapport/*.aux
+rapport/*.bbl
+rapport/*.blg
+rapport/*.fdb_latexmk
+rapport/*.fls
+rapport/*.log
+rapport/*.out
+rapport/*.synctex.gz

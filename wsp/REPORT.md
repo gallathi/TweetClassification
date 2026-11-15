@@ -16,7 +16,7 @@ Reproduction, sur la tâche 1 d'EXIST 2024, de l'approche « Weight-Space Progra
 - **Deux éditions suffisent.** La première est une écriture de rang 1, *creuse*, dans le MLP de la couche 13 : 16 colonnes de `down_proj`, soit 16 381 poids. La seconde réaligne les deux lignes `Oui` et `Non` de la tête de sortie (1 988 poids).
 - **Ce qu'on a trouvé.** Le modèle *sait* mieux qu'il ne répond. Son résidu sépare les tweets sexistes des autres avec une AUC de 0,75, et 16 neurones de la couche 13 atteignent 0,79. Pourtant, sa décision Oui/Non s'appuie sur une direction presque orthogonale à cette information (cosinus ≈ 0,04) et elle est biaisée vers « Oui » (72 % des réponses).
 - **Les garde-fous sont respectés.** La génération reste cohérente (KL du token suivant ≤ 0,024 nat), le modèle ne répond pas « Oui » à tout, et l'effet sur des questions Oui/Non générales reste faible. Il n'est toutefois pas nul (voir la partie 7).
-- **Limite principale.** Le résultat reste loin des modèles fine-tunés de `rapport.md`, qui atteignent un F1 YES d'environ 0,85 sur le même dev, contre 0,724 ici.
+- **Limite principale.** Le résultat reste loin des modèles fine-tunés de `rapport/rapport.pdf`, qui atteignent un F1 YES d'environ 0,85 sur le même dev, contre 0,724 ici.
 
 ---
 
@@ -28,12 +28,12 @@ Reproduction, sur la tâche 1 d'EXIST 2024, de l'approche « Weight-Space Progra
 - Les seules opérations utilisées sont des passes avant, des hooks, des moyennes, des différences de moyennes, des écarts-types, des projections, une SVD (diagnostic), un système linéaire 2×2 et des produits extérieurs de rang 1.
 - Le modèle original n'est jamais modifié sur disque : le modèle édité est écrit dans `./edited_model/`.
 
-**Données.** EXIST 2024, tâche 1, à partir de `data/EXIST2024_training.json` et `data/EXIST2024_dev.json` (le fichier `_training_2` n'est pas utilisé). On reprend le protocole de `rapport.md` :
+**Données.** EXIST 2024, tâche 1, à partir de `data/EXIST2024_training.json` et `data/EXIST2024_dev.json` (le fichier `_training_2` n'est pas utilisé). On reprend le protocole de `rapport/rapport.pdf` :
 
 | Jeu        | Origine                         | Tweets (égalités 3-3 écartées) | YES   | Rôle                                                       |
 | ---------- | ------------------------------- | ------------------------------ | ----- | ---------------------------------------------------------- |
 | calib      | 90 % du train                   | 5 468                          | 44 %  | calcul des statistiques d'activations (moyennes) et choix des hyperparamètres |
-| validation | 10 % du train (seed 42, même tirage que `rapport.md`) | 596              | 44 %  | jugement de chaque tentative                               |
+| validation | 10 % du train (seed 42, même tirage que `rapport/rapport.pdf`) | 596              | 44 %  | jugement de chaque tentative                               |
 | test       | dev EXIST 2024                  | 934                            | 49 %  | **un seul passage**, à la fin                              |
 
 L'étiquette est le vote majoritaire : YES si au moins 4 annotateurs sur 6 répondent « oui ». Les hyperparamètres (a, c, t, δ) sont choisis sur **calib**, qui contient 5 468 tweets. La validation sert de juge indépendant.
@@ -96,7 +96,7 @@ Les 16 neurones retenus sont 500, 907, 945, 1041, 1045, 1067, 1082, 1440, 1959, 
 - L'activation moyenne de la clé vaut 0,08 pour les tweets YES et 0,025 pour les NO, dans les deux langues. Sa corrélation avec le nombre de « oui » des annotateurs est de 0,56.
 - Projetée sur l'unembedding, leur sortie d'origine ne mène à rien de lisible : ces neurones n'écrivaient pas leur détection vers Oui/Non.
 
-## 5. L'édition retenue (`edit.py`)
+## 5. L'édition retenue (`wsp/edit.py`)
 
 **A. Rang 1 creux dans le MLP de la couche 13** (`down_proj`, 16 colonnes, 16 381 poids)
 
@@ -198,7 +198,7 @@ L'édition finale ne dégrade pas ces questions de façon mesurable (±1 à 3 qu
 
 Les résultats du test (0,727) sont cohérents avec ceux de la validation (0,725) : le choix de l'édition n'a pas sur-ajusté la validation.
 
-**Pour situer ces chiffres.** Sur le même dev, les modèles fine-tunés de `rapport.md` atteignent un F1 YES d'environ 0,85 (XLM-R, BERTweet), et TF-IDF avec régression logistique 0,781. Avec 0,724, le modèle édité dépasse nettement sa propre base, mais reste en dessous de toute méthode supervisée. Ce résultat n'est pas surprenant : l'édition n'exploite que des moyennes de classes, là où un fine-tuning ajuste des millions de paramètres.
+**Pour situer ces chiffres.** Sur le même dev, les modèles fine-tunés de `rapport/rapport.pdf` atteignent un F1 YES d'environ 0,85 (XLM-R, BERTweet), et TF-IDF avec régression logistique 0,781. Avec 0,724, le modèle édité dépasse nettement sa propre base, mais reste en dessous de toute méthode supervisée. Ce résultat n'est pas surprenant : l'édition n'exploite que des moyennes de classes, là où un fine-tuning ajuste des millions de paramètres.
 
 ## 9. Ce que nous avons appris sur le modèle
 
@@ -227,18 +227,18 @@ py -3.13 -m venv .venv
 .venv/Scripts/python -m pip install torch --index-url https://download.pytorch.org/whl/cu128
 .venv/Scripts/python -m pip install transformers accelerate safetensors scikit-learn pandas numpy huggingface_hub
 
-.venv/Scripts/python edit.py                  # écrit ./edited_model/ (~7 min sur RTX 3050)
+.venv/Scripts/python wsp/edit.py                # écrit ./edited_model/ (~7 min sur RTX 3050)
 cd wsp
 ../.venv/Scripts/python guardrails.py         # garde-fous de génération (base vs édité)
 ../.venv/Scripts/python factual_gen.py        # 30 questions factuelles, A/B séparés
 ../.venv/Scripts/python final_eval.py         # val + test, base et édité (une seule fois)
 ```
 
-Variantes du journal : `edit.py --t 8` (F2), `edit.py --t 8 --readout global` (F1), `edit.py --t 0` (lecture seule). Les scripts de diagnostic et d'expérimentation sont dans `wsp/` : `collect.py`, `diagnose.py`, `readout_offline.py`, `capture_mlp.py` et `experiments.py`.
+Variantes du journal : `wsp/edit.py --t 8` (F2), `wsp/edit.py --t 8 --readout global` (F1), `wsp/edit.py --t 0` (lecture seule). Les scripts de diagnostic et d'expérimentation sont dans `wsp/` : `collect.py`, `diagnose.py`, `readout_offline.py`, `capture_mlp.py` et `experiments.py`.
 
 | Fichier | Rôle |
 | --- | --- |
-| `edit.py` | applique l'édition au modèle original et écrit `edited_model/` et `edit_meta.json` |
+| `wsp/edit.py` | applique l'édition au modèle original et écrit `edited_model/` et `edit_meta.json` |
 | `wsp/common.py` | données, découpage, prompt, score Oui/Non, métriques |
 | `wsp/generic_questions.py` | 40 questions Oui/Non de référence (pour `m_g`) |
 | `wsp/journal*.jsonl` | journal brut des tentatives E1 à E5 |
