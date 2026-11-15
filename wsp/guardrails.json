@@ -1,0 +1,90 @@
+{
+ "general": {
+  "base": [
+   "La photosynthèse commence par la capture d'énergie lumineuse par des chlorophylles situées dans les feuilles, qui convertissent cette énergie en énergie chimique. Cette énergie chimique est ensuite transférée à des nutriments comme les azote et le carbone, qui sont ensuite transformés en glucose, une substance organique essentielle pour la croissance des plantes. Enfin, ce glucose est",
+   "The waves are silent,\na vast, dark embrace,\nwhere the sky and water\nmeet in a quiet, deep.\n\nThey roll in rhythm,\na slow, steady dance,\na song of endless, endless, endless.\n\nNo shore, no land,\nno foot, no hand,\njust the endless, endless, endless.\n",
+   "La capital de Argentina es **Buenos Aires**.\n\nSi bien Buenos Aires es la capital de la **República Argentina**, la capital de la **País Argentino** (el país entero) es **Córdoba**.\n\nSi bien la mayoría de los turistas y la gente común se dirigen a Buenos Aires por su fama de cultura, música y gastronomía, la ciudad de Córdoba es",
+   "Voici une recette simple et rapide de **crêpes au beurre de cacao** (ou au sucre), idéale pour un repas rapide ou une occasion de détente.\n\n### 🍳 Ingrédients\n\n*   **100 g** de beurre (ou de margarine)\n*   **100 g** de farine de riz (ou de blé)\n*   **1",
+   "To find the product of $17 \\times 23$, we can use the standard multiplication algorithm or the distributive property.\n\n### Method 1: Standard Multiplication\nWe multiply the numbers from left to right, starting with the ones place:\n\n1.  **Multiply the ones:**\n    $7 \\times 3 = 21$\n    Write down **1"
+  ],
+  "edite": [
+   "La photosynthèse est le processus par lequel les plantes, les algues et les bactéries convertissent l'énergie lumineuse en énergie chimique en utilisant l'eau et le CO₂ pour produire du glucose et de l'oxygène.\n\nCette réaction se déroule principalement dans les chloroplastes des cellules végétales, où les chlorophylles absorbent la lumière pour réact",
+   "The waves are not just water,\nBut stories of the past,\nAnd the quiet, deep breath\nOf the ocean's own heart.\n\nThey roll in with a gentle\nSound like a thousand bells,\nWhile the salt air hangs heavy\nOver the endless sea.\n\nNo clouds, no wind, no sky,\nJust the vast, blue, and deep,\nA silent guardian",
+   "La capital de Argentina es **Buenos Aires**.\n\nSi bien Buenos Aires es la ciudad más grande y la más poblada del país, la capital oficial y el centro político, económico y cultural de la nación es **La Plata**. La capital de la provincia de Buenos Aires es **Córdoba**, pero en términos generales, cuando se habla de la capital de la nación Argentina, se suele refer",
+   "Voici une recette simple et rapide de **crêpes au beurre de cacao** (ou au sucre), idéale pour un repas rapide ou un dessert.\n\n### Ingrédients (pour 4 personnes)\n\n*   **1 cuillère à soupe** de beurre de cacao (ou sucre)\n*   **1 cuillère à soupe** d'eau\n*   **1 cuillère à café**",
+   "To find the product of $17 \\times 23$, we can use the standard multiplication algorithm or the distributive property. Here are the steps:\n\n### Method 1: Standard Multiplication (Column Method)\n\n1.  **Set up the numbers**:\n    $$\n    \\begin{array}{r@{\\quad}l}\n      17 & \\\\\n"
+  ]
+ },
+ "oui_non": {
+  "base": [
+   "Oui, Paris est la capitale de la France.\n",
+   "Non, le soleil ne tourne pas autour de la Terre ; il tourne autour du système solaire, et la Terre tourne autour de lui.\n",
+   "**OUI**, l'eau bout à 100 °C (88 °F) au niveau de la mer.\n\nC'est une propriété fondamentale de l'eau qui dépend de la pression atmosphérique. À l'extérieur de la mer"
+  ],
+  "edite": [
+   "Oui, Paris est la capitale de la France.\n",
+   "Non, le soleil ne tourne pas autour de la Terre ; la Terre tourne autour du Soleil.\n",
+   "**Non**, l'eau ne bout pas à 100 °C au niveau de la mer.\n\nEn réalité, l'eau bout à **100 °C (212 °F)** uniquement à **212 mètres ("
+  ]
+ },
+ "neutres_s": {
+  "base": [
+   -0.09700000286102295,
+   -0.29499998688697815,
+   0.5109999775886536,
+   0.5329999923706055,
+   -0.46000000834465027,
+   -0.38100001215934753,
+   -0.07699999958276749,
+   -0.0820000022649765
+  ],
+  "edite": [
+   -2.3459999561309814,
+   -3.0290000438690186,
+   0.414000004529953,
+   -0.164000004529953,
+   -3.2070000171661377,
+   -4.025000095367432,
+   -3.63100004196167,
+   -2.5460000038146973
+  ]
+ },
+ "sexistes_s": {
+  "base": [
+   0.9190000295639038,
+   0.27799999713897705,
+   0.6790000200271606,
+   0.3930000066757202
+  ],
+  "edite": [
+   2.493000030517578,
+   1.0829999446868896,
+   0.2770000100135803,
+   -0.15199999511241913
+  ]
+ },
+ "argmax_val100": {
+  "base": {
+   "Oui": 63,
+   "Non": 37,
+   "autre": 0
+  },
+  "edite": {
+   "Oui": 50,
+   "Non": 50,
+   "autre": 0
+  }
+ },
+ "kl": [
+  0.005021457094699144,
+  0.02386150136590004,
+  0.005116220563650131,
+  0.006496306508779526
+ ],
+ "top1": [
+  0.9523809552192688,
+  1.0,
+  0.9411764740943909,
+  0.9047619104385376
+ ]
+}

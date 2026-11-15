@@ -6,3 +6,7 @@ __pycache__/
 # Sorties générées
 submissions/
 xlmr-exist2024/
+
+# Weight-space programming
+edited_model/
+wsp/cache/
