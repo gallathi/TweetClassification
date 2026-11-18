@@ -8,6 +8,11 @@
 \usepackage{textcomp}%
 \usepackage{booktabs}%
 \usepackage{tabularx}%
+\usepackage{here}%
+\makeatletter
+% Fixed-position table: the sn-jnl table wrapper breaks with [H], so a figure[H] float is typeset as a table
+\newenvironment{Htable}{\begin{figure}[H]\def\@captype{table}\begin{center}\begin{threeparttable}\tablebodyfont}{\end{threeparttable}\end{center}\end{figure}}
+\makeatother
 \usepackage[T1]{fontenc}%
 \usepackage[utf8]{inputenc}%
 
@@ -28,7 +33,7 @@
 
 \affil{\orgdiv{Natural Language Processing course, 5th year}, \orgname{INSA Lyon}, \orgaddress{\city{Lyon}, \country{France}}}
 
-\abstract{We address Task~1 of the CLEF EXIST 2024 challenge, which asks whether a tweet written in English or Spanish is sexist. The task is subjective. Six annotators labelled each tweet, only 32\% of the training tweets are unanimous, and tweets that report or denounce sexism also count as sexist. We worked in two phases, before and after an oral presentation. In the second phase we replaced the single validation split with a 5-fold cross-validation protocol and lifted our initial ban on generative LLMs. This report presents all strategies together, ordered by computing cost. With a low budget, our ``Model~1'' feeds simple techniques (TF-IDF, handcrafted features, a prior based on the keyword used to collect the tweet and a nearest-neighbour prior) into a logistic regression. It fine-tunes no network, yet it raises the F1 of the YES class on the development set from 0.781 (TF-IDF) to 0.841, close to a fine-tuned multilingual transformer (Twitter-XLM-RoBERTa base, 0.846). With a high budget, Twitter-XLM-RoBERTa large trained on the share of annotators who answered YES (soft labels) reaches 0.878. Our best model, at 0.896, is an ensemble of two Qwen LLMs fine-tuned with LoRA (14B and 7B) and XLM-R. It needs a 96~GB GPU and about 23 billion parameters at inference, 40 times more than XLM-R large. Translating Spanish into English, sexism-specific English models, data augmentation, convolutional heads and multi-class outputs gave no measurable gain. Finally, in a side experiment, an AI agent (Claude Opus) edited 0.0022\% of the weights of a small LLM, Qwen3.5-0.8B, without any training, and its F1 went from 0.680 to 0.724.}
+\abstract{We address Task~1 of the CLEF EXIST 2024 challenge, which asks whether a tweet written in English or Spanish is sexist. The task is subjective. Six annotators labelled each tweet, only 32\% of the training tweets are unanimous, and tweets that report or denounce sexism also count as sexist. We worked in two phases, before and after an oral presentation. In the second phase we replaced the single validation split with a 5-fold cross-validation protocol and lifted our initial ban on generative LLMs in order to get the best results. This report presents all strategies together, ordered by computing cost. With a low budget, our ``Model~1'' feeds simple techniques (TF-IDF, handcrafted features, a prior based on the keyword used to collect the tweet and a nearest-neighbour prior) into a logistic regression. It fine-tunes no network, yet it raises the F1 of the YES class on the development set from 0.781 (TF-IDF) to 0.841, close to a fine-tuned multilingual transformer (Twitter-XLM-RoBERTa base, 0.846). With a high budget, Twitter-XLM-RoBERTa large trained on the share of annotators who answered YES (soft labels) reaches 0.878. Our best model, at 0.896, is an ensemble of two Qwen LLMs fine-tuned with LoRA (14B and 7B) and XLM-R. It needs a 96~GB GPU and about 23 billion parameters at inference, 40 times more than XLM-R large. Translating Spanish into English, sexism-specific English models, data augmentation, convolutional heads and multi-class outputs gave no measurable gain. Finally, in a side experiment, an AI agent (Claude Opus) edited 0.0022\% of the weights of a small LLM, Qwen3.5-0.8B, without any training, and its F1 went from 0.680 to 0.724.}
 
 \keywords{sexism detection, social media, EXIST 2024, learning with disagreement, soft labels, multilingual transformers, large language models, LoRA}
 
@@ -61,8 +66,8 @@ The EXIST 2024 overview~\cite{plaza2024exist} describes the six tasks of the cam
 
 Table~\ref{tab:top} summarises the best systems. All of them rely on \emph{large} models or on generative LLMs.
 
-\begin{table}[h]
-\caption{Best systems on Task~1 (hard setting) of EXIST, F1 of the YES class on the official \emph{test} set~\cite{plaza2024exist,plaza2025exist}.}\label{tab:top}
+\begin{Htable}
+\caption{Best systems on Task~1 (hard setting) of EXIST, F1 of the YES class on the official \emph{test} set~\cite{plaza2024exist,plaza2025exist}. The rank is the one of the official ranking, which uses ICM-Hard and not F1 (for example, CIMAT-CS-NLP is 3rd in 2024 despite a higher F1 than ABCD Team). The F1 shown is the one of the best run of each team.}\label{tab:top}
 \begin{tabularx}{\textwidth}{@{}llcX@{}}
 \toprule
 Rank & Team & F1 & Main ingredients \\
@@ -75,7 +80,7 @@ Rank & Team & F1 & Main ingredients \\
 2nd, 2025 & CIMAT-GTO~\cite{cimat2025knowledge} & 0.800 & LLM-generated justifications added to the tweet before Twitter-XLM-R \\
 \botrule
 \end{tabularx}
-\end{table}
+\end{Htable}
 
 \subsection{Models and resources}
 
@@ -97,7 +102,7 @@ The literature leaves several gaps for a student project with our constraints.
 \item \textbf{Only the development set is available.} The labels of the official test set are not public, so all our results are measured on the dev set and cannot be placed directly in the official rankings.
 \item \textbf{Sexism-specific models use another definition.} EDOS defines sexism as ``any abuse, implicit or explicit, that is directed towards women based on their gender''~\cite{kirk2023edos}, while EXIST also includes tweets that report or denounce sexism. An EDOS model therefore cannot be used without retraining.
 \item \textbf{Results on the development set are optimistic.} Every team loses several points between its validation and the test set (CIMAT-GTO drops from 0.859 to 0.789).
-\item \textbf{Little is said about cost.} Systems are ranked on F1 only. Papers rarely discuss how much of the gain survives with a modest GPU, or without any neural network.
+\item \textbf{Little is said about cost.} Systems are ranked on quality metrics only (ICM-Hard, F1). Papers rarely discuss how much of the gain survives with a modest GPU, or without any neural network.
 \end{itemize}
 
 %=====================================================================================
@@ -118,7 +123,7 @@ For a similar cost, strategies go from the least to the most effort they require
 
 The dataset comes as JSON files. For each tweet they give its text, its language, the six answers to each task and a profile of each annotator. From the six answers to Task~1 we derive two labels. The \textbf{hard} label is YES if at least 4 annotators out of 6 answered YES and NO if at most 2 did, and 3--3 ties are discarded as in the official hard evaluation. The \textbf{soft} label $p$ is the share of YES answers (e.g.\ $4/6 \approx 0.67$). Table~\ref{tab:data} and Figure~\ref{fig:data} summarise the data.
 
-\begin{table}[h]
+\begin{Htable}
 \caption{Dataset statistics (hard labels).}\label{tab:data}
 \begin{tabular}{@{}lcc@{}}
 \toprule
@@ -131,9 +136,9 @@ NO & 3,367 (49\%) & 479 (46\%) \\
 Share of YES, English / Spanish & 40\% / 49\% & 44\% / 53\% \\
 \botrule
 \end{tabular}
-\end{table}
+\end{Htable}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_data.pdf}
 \caption{Training set. Left: number of annotators who answered YES. Unanimity (0 or 6) concerns only 32\% of the tweets. Right: hard labels per language.}\label{fig:data}
@@ -147,7 +152,11 @@ The exploratory analysis revealed several properties that guided our choices.
 \item \textbf{Tweets are short} (177 characters on average, only 0.2\% exceed 160 tokens). The data contain a few near-duplicates with contradictory labels and eight tweets that only contain an automatic message. The train and dev sets share practically no tweet.
 \end{itemize}
 
-\begin{table}[h]
+\subsection{Workflow}
+
+\paragraph{Preprocessing\Pone.} We kept the cleaning light on purpose. HTML entities are decoded, URLs become \emph{url}, mentions become \emph{@user} (so that the model does not learn account names), hashtags are kept and split on capital letters (\#IDoNotRenounce becomes ``i do not renounce''), and repeated letters are shortened. We keep stopwords, because removing them would need two lists and words such as \emph{not} or \emph{she} matter here. TF-IDF gets a lowercase version and the transformers get a cased version, since they were pre-trained on raw text.
+
+\begin{Htable}
 \caption{Surface signals in the training tweets with a hard label.}\label{tab:signals}
 \begin{tabular}{@{}lccc@{}}
 \toprule
@@ -160,15 +169,11 @@ Emoji & 18\% & 41\% & 45\% \\
 Laughter (``jaja'', ``lol'') & 2\% & 60\% & 44\% \\
 \botrule
 \end{tabular}
-\end{table}
-
-\subsection{Workflow}
-
-\paragraph{Preprocessing\Pone.} We kept the cleaning light on purpose. HTML entities are decoded, URLs become \emph{url}, mentions become \emph{@user} (so that the model does not learn account names), hashtags are kept and split on capital letters (\#IDoNotRenounce becomes ``i do not renounce''), and repeated letters are shortened. We keep stopwords, because removing them would need two lists and words such as \emph{not} or \emph{she} matter here. TF-IDF gets a lowercase version and the transformers get a cased version, since they were pre-trained on raw text.
+\end{Htable}
 
 \paragraph{Corrected preprocessing\Ptwo.} Comparing raw and cleaned tweets revealed five bugs in this first version (Table~\ref{tab:bugs}). The corrected version starts from the official preprocessing of Twitter-XLM-R (mentions become \emph{@user}, links \emph{http}) and fixes them. Links are cut at their real length, mentions are only recognised at the start of a word, chains of mentions are reduced to one token, and digits are no longer shortened. Laughter is normalised (``jajajaja'' becomes ``jaja''), and hashtags are split even in lowercase by dynamic programming over the training vocabulary, keeping the \# as a ``campaign'' signal.
 
-\begin{table}[h]
+\begin{Htable}
 \caption{Bugs found in the first preprocessing.}\label{tab:bugs}
 \begin{tabularx}{\textwidth}{@{}lX@{}}
 \toprule
@@ -181,7 +186,7 @@ Lowercase hashtags not split & \#notallmen, \#violenciamachista, \#yositecreo \\
 Chains of mentions kept & up to 16 consecutive ``@user'' tokens \\
 \botrule
 \end{tabularx}
-\end{table}
+\end{Htable}
 
 \paragraph{Soft labels.} Every family of models is trained either on hard labels or on soft labels, with the same cross-entropy $-\left[p \log \hat p + (1-p)\log(1-\hat p)\right]$ between the prediction $\hat p$ and the target $p$. scikit-learn does not accept targets between 0 and 1, so for the lexical models we duplicate each tweet, once labelled YES with weight $p$ and once labelled NO with weight $1-p$. Soft labels also let us use the 856 tied tweets.
 
@@ -210,13 +215,13 @@ The dev scores of the two protocols are close but not strictly comparable, since
 
 \paragraph{TF-IDF models\Pone.} Tweets are represented by TF-IDF vectors over word unigrams and bigrams, optionally concatenated with character 2- to 5-grams, which cope well with misspellings, slang and variants. We compare a majority-class baseline, three linear models (logistic regression, linear SVM, ridge classifier), Complement Naive Bayes and two tree-based models (random forest, XGBoost), with balanced class weights where possible. Figure~\ref{fig:tfidf} and Table~\ref{tab:tfidf} show that the three linear models clearly lead, at about 0.78 with character n-grams, which add 1 to 2.5 points. Naive Bayes and the tree-based models stay behind. On high-dimensional sparse vectors, non-linearity brings nothing and costs a lot of computing time.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_tfidf.pdf}
 \caption{TF-IDF models\Pone. F1 of the YES class on the dev set. Tree-based models were only trained on word features because of their cost.}\label{fig:tfidf}
 \end{figure}
 
-\begin{table}[h]
+\begin{Htable}
 \caption{Best TF-IDF models on the dev set\Pone. The majority-class baseline has an F1 of 0 (it never predicts YES) and a macro-F1 of 0.339.}\label{tab:tfidf}
 \begin{tabular}{@{}llccc@{}}
 \toprule
@@ -229,13 +234,13 @@ Words + characters + indicator words & Logistic regression & 0.791 & 0.778 & 0.7
 Words & Linear SVM & 0.775 & 0.762 & 0.774 \\
 \botrule
 \end{tabular}
-\end{table}
+\end{Htable}
 
 \paragraph{Indicator words\Pone.} From the training set only, we built a short list of words that almost always signal a sexist tweet, with 16 English words (e.g.\ \emph{whore}, \emph{feminazi}, \emph{dumb blonde}) and 13 Spanish words (e.g.\ \emph{zorra}, \emph{marimacho}, \emph{sumisa}), each YES in at least 80\% of its occurrences. We left out general insults such as \emph{bitch} or \emph{puta} because they also appear in many non-sexist tweets. When a tweet contains one of these words, we append a marker token so that TF-IDF learns a single weight for these rare words. The list is reliable (93--95\% of the marked tweets are sexist) but covers only 12--18\% of the sexist tweets, and it does not help (0.778 versus 0.781) because TF-IDF already sees each of these words.
 
 \paragraph{Soft labels and error analysis\Pone.} Training the logistic regression on soft labels barely changes the F1 (0.775 versus 0.781) but lowers the cross-entropy from 0.614 to 0.571, so the model is less categorical on ambiguous tweets. Errors concentrate on these tweets (Figure~\ref{fig:errors}). The logistic regression is wrong on 11--15\% of the unanimous tweets but on 39\% of the tweets that received 4 YES out of 6. Its most influential YES features are \emph{women}, \emph{mujeres}, \emph{mujer}, \emph{feminazi}, \emph{feminismo} and insults. The model reacts to words rather than meaning, while a tweet that denounces sexism uses the same words as a sexist one.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.65\textwidth]{figures/fig_errors.pdf}
 \caption{Error rate of the TF-IDF logistic regression on the dev set, by number of YES votes\Pone.}\label{fig:errors}
@@ -257,7 +262,7 @@ A logistic regression stacked on the four signals (TF-IDF, features, keyword pri
 
 Table~\ref{tab:roberta} shows the jump from lexical models to a fine-tuned transformer, +6.5 points over TF-IDF, in both languages (0.833 in English and 0.850 in Spanish for the hard version). With hard labels, the validation cross-entropy rises from the second epoch on while the training loss keeps decreasing (Figure~\ref{fig:curves}). The model becomes over-confident, which is why we keep the best epoch. With soft labels the curve stays flat, since the model cannot be more categorical than the annotators. The hard version has the best F1 and the soft version the most faithful probabilities (cross-entropy 0.533 versus 0.658). Their average gets both, with an F1 of 0.846 and a cross-entropy of 0.541. The gain of the average stays small because both versions start from the same model and see the same tweets.
 
-\begin{table}[h]
+\begin{Htable}
 \caption{Lexical models and Twitter-XLM-RoBERTa base on the dev set\Pone.}\label{tab:roberta}
 \begin{tabular}{@{}lcc@{}}
 \toprule
@@ -270,9 +275,9 @@ Twitter-XLM-R base, soft labels & 0.834 & \textbf{0.533} \\
 \textbf{Twitter-XLM-R base, average of hard and soft} & \textbf{0.846} & 0.541 \\
 \botrule
 \end{tabular}
-\end{table}
+\end{Htable}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_roberta_curves.pdf}
 \caption{Fine-tuning of Twitter-XLM-RoBERTa base\Pone. The hard-label model over-fits after the first epoch, while the soft-label model stays stable.}\label{fig:curves}
@@ -288,7 +293,7 @@ Twitter-XLM-R base, soft labels & 0.834 & \textbf{0.533} \\
 
 \paragraph{One-factor ablations\Ptwo.} Starting from the soft model, we changed one setting at a time (Figure~\ref{fig:ablations}) to test ideas from the literature and from the error analysis. We tried the corrected preprocessing, a multi-task output (Tasks 2 and 3 as auxiliary heads), a 4-class output (NO, DIRECT, REPORTED, JUDGEMENTAL, trained on the distribution of the votes, with $P(\text{YES}) = 1 - P(\text{NO})$), a 7-class output (number of YES votes), AEDA~\cite{karimi2021aeda} and a MultiCNN head~\cite{kalra2021sexism}. On the OOF predictions, only the corrected preprocessing (+0.4 point) and the multi-task output (+0.1) improve the reference, and on the dev set no variant beats it. AEDA, the 7-class output and the CNN head are slightly worse everywhere. The 4-class model is better on DIRECT and REPORTED tweets (accuracy 0.898 and 0.909 against 0.876 and 0.881) but worse on NO tweets (0.830 against 0.851). It is weak alone, but its errors are different.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_ablations.pdf}
 \caption{One-factor ablations of XLM-R large trained on soft labels\Ptwo. Left: OOF F1 over 6,064 training tweets, used to choose. Right: dev F1. The dashed line is the reference.}\label{fig:ablations}
@@ -304,7 +309,7 @@ Twitter-XLM-R base, soft labels & 0.834 & \textbf{0.533} \\
 \end{itemize}
 All configurations score between 0.833 and 0.848 (Table~\ref{tab:second}), and their ranking changes between validation and dev, so these differences are noise. Translation also adds errors (``bancarrota'' becomes ``BANK ROTA''). Translated Spanish scores below English, whereas untranslated Spanish scores above English with the multilingual model. For about three times the computation per tweet, plus the cost of translation, this pipeline does not beat the base multilingual model. Together with the results of the large multilingual model, this shows that translating into English is not worth it.
 
-\begin{table}[h]
+\begin{Htable}
 \caption{Second pipeline\Pone. Spanish is translated into English and the models are BERTweet-large. ``EDOS detector'' is the BERTweet-large model already fine-tuned on EDOS, then retrained on EXIST.}\label{tab:second}
 \begin{tabular}{@{}lcc@{}}
 \toprule
@@ -318,7 +323,7 @@ EDOS detector + linear + features, early stopping & 0.836 & 0.848 \\
 EDOS detector + linear + features, 4 epochs & 0.844 & 0.839 \\
 \botrule
 \end{tabular}
-\end{table}
+\end{Htable}
 
 \subsubsection{Very high compute: LLMs}
 
@@ -332,13 +337,13 @@ All LLM experiments ran on one NVIDIA RTX PRO 6000 GPU (96~GB) on Google Colab, 
 
 \paragraph{Combinations\Ptwo.} Combining models took the most effort. We tried it because the LLM and XLM-R make different errors. On the dev set they share 67 errors, but 45 are specific to the LLM and 46 to XLM-R. All combinations are learnt on the OOF predictions. The methods are greedy ensemble selection~\cite{caruana2004ensemble}, stacking~\cite{wolpert1992stacking} with a logistic regression (with or without Model~1 and the handcrafted features), a weighted mixture of the LLM and XLM-R ensembles, routing uncertain tweets to the LLM~\cite{alajmi2025warwick}, and per-language thresholds. The last two bring nothing stable. Mixing the two ensembles gives most of the gain as soon as the LLM weight reaches 0.3 (Figure~\ref{fig:weight}). Table~\ref{tab:results} lists the main results.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.65\textwidth]{figures/fig_llm_weight.pdf}
 \caption{OOF F1 of the mixture $w \cdot \text{LLM} + (1-w) \cdot \text{XLM-R}$\Ptwo. With $w = 0$ (XLM-R only) the F1 is 0.862. The point $w = 0.5$ was not logged.}\label{fig:weight}
 \end{figure}
 
-\begin{table}[h]
+\begin{Htable}
 \caption{Main results under the 5-fold protocol\Ptwo, ordered by computing cost. OOF: F1 on the cross-validation predictions (criterion of choice). Dev: F1 with the threshold chosen on the OOF, 95\% bootstrap interval, and $p(\Delta\le 0)$ against the XLM-R large baseline (average of hard and soft).}\label{tab:results}
 \begin{tabularx}{\textwidth}{@{}Xcccc@{}}
 \toprule
@@ -363,7 +368,7 @@ Stacking of LLMs, XLM-R and Model~1 & 0.871 & 0.894 & [0.871, 0.914] & 0.004 \\
 \textbf{Greedy ensemble: Qwen3-14B + Qwen2.5-7B + XLM-R (retained)} & \textbf{0.872} & \textbf{0.896} & [0.874, 0.915] & $<$0.001 \\
 \botrule
 \end{tabularx}
-\end{table}
+\end{Htable}
 
 \paragraph{Our best model\Ptwo.} The retained model, chosen on the OOF predictions, is the greedy ensemble that averages Qwen3-14B, Qwen2.5-7B and one XLM-R large seed with equal weights. It reaches \textbf{0.896} on the dev set (precision 0.886, recall 0.905, with 0.877 in English and 0.910 in Spanish). That is 2.8 points above the large-encoder baseline ($p < 0.001$) and 1.3 points above the best combination of the first round of LLM experiments ($p = 0.013$). It makes 96 errors (53 false positives, 43 false negatives). Its accuracy is 0.995 on tweets with 0 YES votes and 0.982 with 6 votes, but only 0.707 and 0.799 with 2 and 4 votes. It still misses the same kinds of tweets as before (irony, neutral talk about sexism, affectionate insults), and most of the remaining errors come from disagreement between annotators. The best combinations are within 0.2 point of each other on the OOF predictions, so their ranking on the dev set should not be over-interpreted.
 
@@ -371,13 +376,13 @@ Stacking of LLMs, XLM-R and Model~1 & 0.871 & 0.894 & [0.871, 0.914] & 0.004 \\
 
 Figure~\ref{fig:overview} gathers all strategies in the order of this section, and Table~\ref{tab:budget} retains one method per budget.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_overview.pdf}
 \caption{All strategies ordered by computing cost (colour) and, within a level, by effort. Dots: Phase~2, 5-fold protocol, with 95\% bootstrap intervals. Diamonds: Phase~1 protocol or single evaluation, no interval.}\label{fig:overview}
 \end{figure}
 
-\begin{table}[h]
+\begin{Htable}
 \caption{Recommended method by computing budget (dev F1 of the YES class).}\label{tab:budget}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}Xc@{}}
 \toprule
@@ -389,7 +394,7 @@ Budget & Method & Dev F1 \\
 \textbf{Very high}: one 96 GB GPU, about 3 hours for the 5 folds & \textbf{Greedy ensemble of Qwen3-14B and Qwen2.5-7B fine-tuned with LoRA and of XLM-R large}\Ptwo{} (about 23B parameters at inference) & \textbf{0.896} \\
 \botrule
 \end{tabularx}
-\end{table}
+\end{Htable}
 
 With a low budget, Model~1 does very well for its cost. Built only from simple techniques, it reaches 0.841, almost the score of the fine-tuned base transformer, which needs a GPU. With a high budget, XLM-R large on soft labels is the best trade-off. It handles both languages without translation, a training run is short compared with an LLM, and its seeds can be averaged. With a very high budget, fine-tuned LLMs add about 2 points for about 40 times more parameters at inference. For one model alone this gain is at the edge of the uncertainty, but it becomes significant once the LLMs are combined with XLM-R. For reference, the best F1 scores on the official \emph{test} set were 0.794 in 2024 and 0.817 in 2025. Our scores are measured on the dev set and are therefore not directly comparable.
 
@@ -405,7 +410,7 @@ This experiment falls outside the scope of the project, which is to build the be
 
 \paragraph{The edit.} (A) A sparse rank-1 write in the MLP of layer 13. When the 16 ``sexism'' neurons fire, the MLP also writes the direction that separates the classes into the residual stream (16,381 weights). (B) The output rows of \emph{Oui} and \emph{Non} are realigned on the direction that separates the classes, with a bias that only applies in the context of the task (1,988 weights). In total, \textbf{18,369 weights out of 853 million (0.0022\%)} are modified. Along the way, a bias alone gained 4 points of macro-F1 and realigning the readout gained 12, while dense edits of a whole MLP modified 160 times more weights for a lower score. A global bias also broke general Yes/No questions (accuracy on 30 factual questions fell from 0.77 to 0.57), which led us to the task-specific bias.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_wsp.pdf}
 \caption{Weight-space programming of Qwen3.5-0.8B\Ptwo, evaluated once on the dev set (934 tweets).}\label{fig:wsp}
